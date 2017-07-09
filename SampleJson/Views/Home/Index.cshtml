@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+<div class="col-lg-6">
+    <br /><br />
+    <ul id="list"></ul>
+</div>
+<div class="col-lg-6">
+    <input id="txt" type="text" />
+    <a class="btn btn-success" id="btnAdd">List</a>
+</div>
+<div class="clearfix"></div>
+<span id="lastId" class="hidden">1</span>
+@section Scripts
+{
+    <script type="text/javascript">
+        //Retrieve from database
+        function GetList(lastId) {
+            $('#list').find('li').remove();
+            $.ajax({
+                url: '/Home/GetList',
+                type: 'POST',
+                dataType: 'json',
+                data: lastId,
+                success: function (data) {
+                    $(data)
+                        .each(function (index, item) {
+                            $("#list").append("<li class='names'>" + item.Id + "-" + item.Name + "</li>");
+                            $('#lastId').html(item.Id);
+                        });
+                }
+            });
+            //Refresh list every 4 seconds
+            setTimeout(GetList, 4000);
+        };
+
+        //Add a new item to database
+        function AddToList(test) {
+            $('#list').find('li').remove();
+            $.ajax({
+                url: '/Home/Add',
+                type: 'POST',
+                dataType: 'json',
+                data: { Name: test },
+                success: function () {
+                    $('#myModal').modal();
+                }
+            });
+        }
+
+        $(function () {
+            GetList();
+            $('#btnAdd')
+                .click(function () {
+                    AddToList($('#txt').val());
+                });
+        });
+    </script>
+}
